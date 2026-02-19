@@ -1,0 +1,28 @@
+@using RopaSelectDormiApp.Entities.User
+@{
+    ViewData["Title"] = "Administrar Usuarios";
+}
+<div>
+    <h1>@ViewData["Title"]</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nombre de Usuario</th>
+            <th>Nombre completo</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var user in (ViewData["Users"] as List<User>)!)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.NormalizedUserName</td>
+                <td>@user.Email</td>
+                <td></td>
+            </tr>
+        }
+        </tbody>    
+    </table>
+</div>

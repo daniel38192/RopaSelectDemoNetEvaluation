@@ -1,0 +1,62 @@
+@{
+    Layout = null;
+    var showMessage = ViewData["ShowMessage"] as bool? ?? false;
+    var message = ViewData["Message"] as string ?? "";
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body { background-color: #ffffff; }
+        .register-container { background-color: #f8f9fa; border: 1px solid #28a745; border-radius: 8px; padding: 2rem; max-width: 400px; margin: 3rem auto; }
+        .btn-success { background-color: #28a745; border-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .login-link { text-align: center; margin-top: 1rem; }
+        .login-link a { color: #007bff; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
+        .alert { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="register-container">
+        <h2 class="text-center text-success mb-4">Create Account</h2>
+        <form method="post" asp-controller="Account" asp-action="CreateAccount">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">Register</button>
+                <a href="/Account" class="btn btn-secondary btn-lg">Back to Login</a>
+            </div>
+            @if (showMessage)
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    @message
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </form>
+        <div class="login-link">
+            <p>Already have an account? <a href="/Account">Log in here</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

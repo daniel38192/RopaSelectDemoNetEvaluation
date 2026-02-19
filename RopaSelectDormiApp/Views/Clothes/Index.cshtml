@@ -1,0 +1,209 @@
+@using RopaSelectDormiApp.Model.Clothe
+@model RopaSelectDormiApp.Dto.Clothe.CreateClotheDto
+@{
+    ViewData["Title"] = "Ropas";
+}
+<style>
+    th, td {
+        margin: 8px;
+        padding: 8px;
+    }
+    .window {
+        display: none;
+        position: fixed;
+        align-items: center;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #0c2a55;
+        opacity: 75%;
+        justify-content: center;
+    }
+    .window-card {
+        opacity: 100%;
+        color: black;
+        background-color: white;
+        padding: 20px;
+        min-width: fit-content;
+        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 2px 16px gray;
+    }
+</style>
+<div id="clothes-container" style="max-width: fit-content">
+    <table>
+        <thead>
+    
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var clothe in (List<ClotheModel>)ViewData["clothes"]!)
+        {
+            <tr>
+                <td>@clothe.Id</td>
+                <td>@clothe.Name</td>
+                <td>@(clothe.Description ?? "No disponible")</td>
+                <td style="display: none"><button class="btn btn-danger delete-clothe-button">Borrar</button></td>
+            </tr>
+        } 
+        </tbody>
+    </table>
+    <button id="add-clothe-button" class="btn btn-primary" style="display: none">Nueva ropa +</button>
+</div>
+<div id="add-clothe-container-form">
+    <div style="min-width: fit-content; text-align: center">
+        <h3>Agregar nueva ropa</h3>
+        <form id="create-clothe-form" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div style="text-align: left">
+                <label asp-for="Name" style="text-align: left; justify-content: left">Nombre</label>
+                <br/>
+                <input asp-for="Name" class="form-control" type="text" placeholder="Agrega el nombre de la prenda" style="min-width: 100%">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div style="text-align: left">
+                <label asp-for="Description" style="text-align: left; justify-content: left">Descripción</label>
+                <br/>
+                <input asp-for="Description" class="form-control" type="text" placeholder="Agrega una descripción" style="min-width: 100%">
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                <button id="add-clothe-form-cancel" class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;">Cancelar</button>
+                <button class="btn btn-primary">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="delete-clothe" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h3>Atención</h3>
+            <h4>¿Desea borrar la prenda?</h4>
+            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="document.getElementById('delete-clothe').style.display = 'none'">Cancelar</button> 
+                <button class="btn btn-danger" onclick="deleteClotheButtonHandler()">Sí, Borrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="info-window" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h3>Aviso</h3>
+            <h4 id="info-window-message">No content</h4>
+            <div style="margin-top: 5px; text-align: center">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="document.getElementById('info-window').style.display = 'none'">Aceptar</button> 
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+    let selectedClotheId = null;
+    
+    const addClotheContainerForm = document.querySelector('#add-clothe-container-form')
+    const addClotheButton = document.querySelector("#add-clothe-button")
+    const clothesTable = document.querySelector("#clothes-container")
+
+    @if ((bool?)ViewData["hideAddClotheForm"] ?? false)
+    {
+        WriteLiteral("addClotheContainerForm.style.display = 'none'");
+    }
+    
+    clothesTable.onmouseenter = () => addClotheButton.style.display = 'flex'
+    
+    clothesTable.onmouseleave = () => addClotheButton.style.display = 'none'
+
+    addClotheButton.onclick = () => addClotheContainerForm.style.display = ''
+    
+    let addClotheFormCancelButton = document.querySelector('#add-clothe-form-cancel')
+    
+    addClotheFormCancelButton.onclick = event => {
+        event.preventDefault();
+        addClotheContainerForm.style.display = 'none'
+    }
+    
+    document.querySelectorAll(".delete-clothe-button").forEach(deleteClotheButton => {
+        let clotheTr = deleteClotheButton.closest('tr')
+        let clotheDeleteButtonTd = deleteClotheButton.closest('td');
+
+        clotheTr.onmouseenter = () => clotheDeleteButtonTd.style.display = ''
+
+        clotheTr.onmouseleave = () => clotheDeleteButtonTd.style.display = 'none'
+        
+        let clotheId = clotheTr.querySelector('td').innerText
+        
+        deleteClotheButton.onclick = () => handleClotheDeletion(clotheId)
+    })
+    
+    function handleClotheDeletion(clotheId){
+       selectedClotheId = clotheId;
+       document.getElementById('delete-clothe').style.display = 'flex';
+    }
+    
+    const infoWindowMessage = document.getElementById('info-window-message');
+    const infoWindow = document.getElementById('info-window');
+    function deleteClotheButtonHandler(){
+        document.getElementById('delete-clothe').style.display = 'none';
+        deleteClotheAPI(selectedClotheId).then(
+            res => {
+                if(res.ok){
+                    infoWindowMessage.innerHTML = "Prenda borrada correctamente"
+                    deleteClotheOnTable(selectedClotheId)
+                } else {
+                    if(res.status === 404) {
+                        infoWindowMessage.innerHTML = "No se encontró la prenda"
+                    } else {
+                        infoWindowMessage.innerHTML = "Error interno del servidor"
+                    }
+                }
+                infoWindow.style.display = 'flex'
+                selectedClotheId = null;
+            },
+            err => {
+                infoWindowMessage.innerHTML = "Error interno del servidor"
+                infoWindow.style.display = 'flex'
+                selectedClotheId = null;
+                console.log(err)
+            }
+        )
+    }
+    
+    function deleteClotheOnTable(clotheId){
+        document.querySelector('table').querySelectorAll('tr').forEach(tr => {
+            const clotheIdTd = tr.querySelector('td')
+            const clotheIdTdValue = (clotheIdTd != null) ? clotheIdTd.innerText : ''
+            if(clotheIdTdValue === clotheId.toString()){
+                tr.remove()
+            }
+        })
+    }
+</script>
+<script>
+    function antiForgeryToken(){
+        let token = ""
+        document.querySelector("#create-clothe-form").querySelectorAll('input').forEach(input => {
+            if(input.name.toString() === "__RequestVerificationToken"){
+                token = input.value
+            }
+        })
+        return token;
+    } 
+    
+    async function deleteClotheAPI(clotheId){
+        
+        const deleteClotheUrl = "@Url.Action("Delete", "ApiClothes")"
+        
+        return await fetch(deleteClotheUrl+"/"+clotheId, {
+            method: 'DELETE',
+            body: new URLSearchParams({'__RequestVerificationToken': antiForgeryToken()})
+        })
+        
+        //
+    }
+</script>

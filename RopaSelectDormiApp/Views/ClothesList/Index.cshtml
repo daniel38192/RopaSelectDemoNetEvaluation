@@ -1,0 +1,488 @@
+@using RopaSelectDormiApp.Model.ClotheList
+@model RopaSelectDormiApp.Dto.ClotheList.CreateClotheListDto
+@{
+    ViewData["Title"] = "Listas";
+    var clothesList = (List<ClotheListModel>?)ViewData["clothesList"] ?? [];
+}
+<style>
+    #container-main {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+    }
+    .window {
+        display: none;
+        position: fixed;
+        align-items: center;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #0c2a55;
+        opacity: 75%;
+        justify-content: center;
+    }
+    .window-card {
+        opacity: 100%;
+        color: black;
+        background-color: white;
+        padding: 20px;
+        min-width: fit-content;
+        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 2px 16px gray;
+    }
+</style>
+<div id="container-main">
+    <div id="main-clothes-list">
+        <h3>Mis Listas</h3>
+        @foreach (var clotheList in clothesList)
+        {
+            <div id="@($"clothe-list-{clotheList.Id}")" style="display: inline; padding: 6px">
+                <span><h5>@((clotheList.Name ?? "Lista de ropa") + ": " + clotheList.CreatedAt.ToString("MM/dd/yyyy hh:mm tt"))</h5></span>
+                <span id="@($"clothe-list-span-list-{clotheList.Id}")" emptyList=true style="display: none"></span>
+                <button id="@($"clothe-list-add-element-button-{clotheList.Id}")" class="btn btn-primary" style="display: none;">Agregar +</button>
+            </div>
+        }
+    </div>
+    <div>
+        <h3>Nueva lista</h3>
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Name">Nombre</label>
+                <input class="form-control" asp-for="Name" placeholder="Ingresa el nombre"></input>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary" style="margin: 8px; padding-bottom: 8px">Crear Lista</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="add-clothe-to-list" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h4>Agregar una prenda a la lista</h4>
+            <div>
+                <div class="input-group mb-3" style="display: grid">
+                    <div style="display: flex;">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="clothe-select">Options</label>
+                        </div>
+                        <select class="custom-select" id="clothe-select" style="flex-grow: 1">
+                            <option disabled selected>Choose...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <div style="display: grid">
+                                <label for="clothe-quantity" style="text-align: left">Cantidad</label>
+                            </div>
+                            <input type="number" class="form-control" id="clothe-quantity" placeholder="Ingrese cantidad" min="0" step="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="document.getElementById('add-clothe-to-list').style.display = 'none'">Cancelar</button> 
+                <button class="btn btn-success" onclick="addClotheToListButtonHandler()">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="update-clothe-list-element" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h4>Actualizar cantidad</h4>
+            <div>
+                <div class="input-group mb-3" style="display: grid">
+                    <div>
+                        <div class="form-group">
+                            <div style="display: grid">
+                                <label for="clothe-quantity" style="text-align: left">Cantidad</label>
+                            </div>
+                            <input type="number" class="form-control" id="update-clothe-quantity-value" placeholder="Ingrese cantidad" min="0" step="1" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="setUpdateClotheListElementWindowDisplayState('none')">Cancelar</button> 
+                <button class="btn btn-info" onclick="updateClotheListElementHandler()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="delete-clothe-list-element" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h3>Atención</h3>
+            <h4>¿Desea borrar el elemento?</h4>
+            <div style="margin-top: 5px; display: flex; justify-content: space-between;">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="setDeleteClotheListElementWindowDisplayState('none')">Cancelar</button> 
+                <button class="btn btn-danger" onclick="deleteClotheListElementHandler()">Sí, Borrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="info-window" class="window">
+    <div class="window-card">
+        <div style="min-width: fit-content; text-align: center">
+            <h3>Aviso</h3>
+            <h4 id="info-window-message">No content</h4>
+            <div style="margin-top: 5px; text-align: center">
+                <button class="btn btn-light" style="box-shadow: 0 2px 5px #d8d8d8;" onclick="document.getElementById('info-window').style.display = 'none'">Aceptar</button> 
+            </div>
+        </div>
+    </div>
+</div>
+<table>
+    <tbody>
+    <tr>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+<script>
+
+    document.querySelector('#main-clothes-list')
+        .querySelectorAll('div').forEach(clotheList => {
+            let clotheListId = clotheList.id.split('-')[2];
+            let clotheListSpan = clotheList.querySelector('span')
+            clotheListSpan.onclick = () => handleClotheListClick(clotheListId)
+        clotheList.querySelector('button').onclick = () => handleClotheCreation(clotheListId)
+    })
+
+    function antiForgeryToken(){
+        let token = ""
+        document.querySelector("form").querySelectorAll('input').forEach(input => {
+            if(input.name.toString() === "__RequestVerificationToken"){
+                token = input.value
+            }
+        })
+        return token;
+    }
+
+    function handleClotheListClick(clotheListId){
+       if(isClotheListEmpty(clotheListId)){
+           setClotheListDisplay(clotheListId, '')
+           loadItems(clotheListId)
+       } else {
+           setClotheListDisplay(clotheListId, (getClotheListDisplay(clotheListId) === 'none') ? '' : 'none')
+       }
+    }
+    
+    function isClotheListEmpty(clotheListId){
+        let clotheList = document.querySelector('#clothe-list-'+clotheListId)
+        let clotheListElements = clotheList.querySelectorAll('span')[1]
+
+        return (clotheListElements.getAttribute('emptyList').toString() === true.toString())
+    }
+    
+    function setClotheListAttribute(clotheListId, attribute, value){
+        let clotheList = document.querySelector('#clothe-list-'+clotheListId)
+        let clotheListElements = clotheList.querySelectorAll('span')[1]
+
+        clotheListElements.setAttribute(attribute, value)
+    }
+    
+    function setClotheListDisplay(clotheListId, state){
+        let clotheList = document.querySelector('#clothe-list-'+clotheListId)
+        let clotheListElements = clotheList.querySelectorAll('span')[1]
+        let clotheListAddButton = clotheList.querySelector('button.btn.btn-primary')
+        
+        clotheListElements.style.display = state
+        clotheListAddButton.style.display = state
+    }
+
+    function getClotheListDisplay(clotheListId){
+        let clotheList = document.querySelector('#clothe-list-'+clotheListId)
+        let clotheListElements = clotheList.querySelectorAll('span')[1]
+
+        return clotheListElements.style.display
+    }
+    
+    function loadItems(clotheListId){
+        let clotheList = document.querySelector('#clothe-list-'+clotheListId)
+        let clotheListElements = clotheList.querySelectorAll('span')[1]
+        
+        clotheListElements.innerHTML = ''
+        
+        let clotheListElementsTableBody = document.createElement('tbody')
+        
+        fetchClotheListElementsApi(clotheListId).then(elements => {
+            elements.forEach(element => appendElementToSpan(clotheListElementsTableBody, clotheListId, element))
+            setClotheListAttribute(clotheListId, 'emptyList', false)
+        })
+        
+        let clotheListElementsTable = document.createElement('table')
+        
+        clotheListElementsTable.appendChild(clotheListElementsTableBody)
+        
+        clotheListElements.appendChild(clotheListElementsTable)
+        
+    }
+    
+
+    function appendElementToSpan(clotheListElements, clotheListId, newElement){
+        let clotheTr = document.createElement('tr')
+        clotheTr.setAttribute('id', "clothe-list-element."+clotheListId+"."+newElement['id'])
+        clotheTr.innerHTML = 
+                "<td style='padding: 10px'>"+newElement['name']+"</td>"
+            +   "<td style='padding: 10px'>Cantidad: *"+newElement['quantity']+"*</td>"
+
+        appendAdvancedOptionsToClotheTr(clotheTr, clotheListId, newElement['id']);
+        
+        clotheListElements.appendChild(clotheTr)
+    }
+
+    function appendAdvancedOptionsToClotheTr(clotheTr, clotheListId, newElementId) {
+        let advancedOptionsTd = document.createElement('td')
+
+        advancedOptionsTd.setAttribute('style', 'padding: 10px; display: none')
+
+        clotheTr.onmouseenter = () => advancedOptionsTd.style.display = ''
+        clotheTr.onmouseleave = () => advancedOptionsTd.style.display = 'none'
+
+        let deleteButton = document.createElement('button')
+        deleteButton.setAttribute('class', 'btn btn-danger delete-clothe-list-element-button')
+        deleteButton.setAttribute('style', 'margin: 5px')
+        deleteButton.appendChild(document.createTextNode("Borrar"))
+
+        deleteButton.onclick = () => handleClotheListElementDeletion(clotheListId, newElementId)
+        
+        let updateButton = document.createElement('button')
+        updateButton.setAttribute('class', 'btn btn-info update-clothe-list-element-button')
+        deleteButton.setAttribute('style', 'margin: 5px')
+        updateButton.appendChild(document.createTextNode("Actualizar"))
+        
+        updateButton.onclick = () => handleClotheListElementUpdate(clotheListId, newElementId)
+
+        advancedOptionsTd.appendChild(deleteButton)
+        advancedOptionsTd.appendChild(updateButton)
+
+        clotheTr.appendChild(advancedOptionsTd)
+    }
+    
+    function setAddClotheToListWindowState(state){
+        document.getElementById('add-clothe-to-list').style.display = state
+    }
+    
+    function clearClotheSelectOptions(){
+        const selectElement = document.getElementById('clothe-select');
+        // Keep only the first option (disabled placeholder)
+        while (selectElement.options.length > 1) {
+            selectElement.remove(1);
+        }
+        document.getElementById('clothe-quantity').value = '0'
+    }
+    
+    async function loadAvailableClotheSelectOptions(clotheListId){
+        const availableClothes = await fetchClothesNotInListApi(clotheListId)
+        const selectElement = document.getElementById('clothe-select');
+        availableClothes.forEach(clothe => {
+            const optionElement = document.createElement('option');
+            optionElement.value = clothe['id'];
+            optionElement.textContent = clothe['name'];
+            selectElement.appendChild(optionElement);
+        });
+    }
+    
+    let selectedClotheListId = null
+    
+    function getSelectedClotheInClotheSelectOptions(){
+        return document.getElementById('clothe-select').value
+    }
+    
+    function getClotheInitialQuantityValue(){
+        return document.querySelector('#clothe-quantity').value
+    }
+
+    function addClotheToListButtonHandler() {
+        setAddClotheToListWindowState('none')
+        addClotheElementToListApi(
+            selectedClotheListId,
+            getSelectedClotheInClotheSelectOptions(),
+            getClotheInitialQuantityValue()
+        ).then(() => {
+                loadItems(selectedClotheListId)
+                selectedClotheListId = null
+            }
+        )
+    }
+
+    async function handleClotheCreation(clotheListId){
+        selectedClotheListId = clotheListId
+        clearClotheSelectOptions()
+        await loadAvailableClotheSelectOptions(clotheListId)
+        setAddClotheToListWindowState('flex')
+    }
+    
+</script>
+<script>
+    let selectedClotheListElementId = null
+    
+    function handleClotheListElementDeletion(clotheListId, clotheListElementId){
+        selectedClotheListId = clotheListId
+        selectedClotheListElementId = clotheListElementId
+        setDeleteClotheListElementWindowDisplayState('flex')
+    }
+    
+    function handleClotheListElementUpdate(clotheListId, clotheListElementId){
+        selectedClotheListId = clotheListId
+        selectedClotheListElementId = clotheListElementId
+        fetchQuantityByListAndElementIdApi(clotheListId, clotheListElementId).then(quantity => {
+            setUpdateClotheListElementQuantity(quantity)
+            setUpdateClotheListElementWindowDisplayState('flex')
+        })
+    }
+    
+    function deleteClotheListElementHandler(){
+        setDeleteClotheListElementWindowDisplayState('none')
+        deleteClotheListElementByListAndElementIdApi(selectedClotheListId, selectedClotheListElementId)
+            .then(response => {
+                if(response.ok) {
+                    setInfoWindowMessageState('flex')
+                    setInfoWindowMessageContent('Elemento borrado correctamente')
+                    removeClotheListElementDiv(selectedClotheListId, selectedClotheListElementId)
+                    selectedClotheListId = null
+                    selectedClotheListElementId = null
+                } else {
+                    setInfoWindowMessageState('flex')
+                    setInfoWindowMessageContent('Ocurrió un error')
+                    selectedClotheListId = null
+                    selectedClotheListElementId = null
+                }
+            })
+    }
+
+    function updateClotheListElementHandler(){
+        setUpdateClotheListElementWindowDisplayState('none')
+        updateQuantityByListAndElementIdApi(
+            selectedClotheListId, 
+            selectedClotheListElementId,
+            getUpdateClotheListElementQuantity()
+        ).then(response => {
+            if(response.ok) {
+                updateClotheListElementTr(selectedClotheListId, selectedClotheListElementId)
+                selectedClotheListId = null
+                selectedClotheListElementId = null
+            } else {
+                setInfoWindowMessageState('flex')
+                setInfoWindowMessageContent('Ocurrió un error')
+                selectedClotheListId = null
+                selectedClotheListElementId = null
+            }
+        })
+    }
+    
+    function updateClotheListElementTr(idClotheList, idClotheListElement){
+        let clotheListElementTr = document.getElementById('clothe-list-element.'+idClotheList+'.'+idClotheListElement)
+        fetchQuantityByListAndElementIdApi(idClotheList, idClotheListElement).then(
+            quant => clotheListElementTr.querySelectorAll('td')[1].innerHTML = 'Cantidad *'+quant+'*'
+        )
+    }
+    
+    function setDeleteClotheListElementWindowDisplayState(state){
+        document.getElementById("delete-clothe-list-element").style.display = state;
+    }
+
+    function setUpdateClotheListElementWindowDisplayState(state){
+        document.getElementById("update-clothe-list-element").style.display = state;
+    }
+    
+    function setInfoWindowMessageState(state){
+        document.getElementById("info-window").style.display = state;
+    }
+    
+    function setInfoWindowMessageContent(content){
+        document.getElementById("info-window")
+            .querySelector('div')
+            .querySelector('div')
+            .querySelector('h4#info-window-message')
+            .innerHTML = content
+    }
+    
+    function setUpdateClotheListElementQuantity(value){
+        document.getElementById("update-clothe-quantity-value").value = value;
+    }
+
+    function getUpdateClotheListElementQuantity(){
+        return document.getElementById("update-clothe-quantity-value").value
+    }
+    
+    function removeClotheListElementDiv(clotheListId, clotheListElementId){
+        let elementId = "clothe-list-element."+clotheListId+"."+clotheListElementId
+        document.getElementById(elementId).remove()
+    }
+</script>
+<script>
+    const clotheListElementsUrl = "@(Url.Action("FindNameQuantityById", "ApiClothesList"))"
+    
+    const clothesNotInListUrl = "@Url.Action("FindClothesNotInListById", "ApiClothesList")"
+    
+    const addClotheElementToList = "@Url.Action("AddClothesToList", "ApiClothesList")"
+    
+    const deleteClotheListElementByListAndElementIdUrl = "@Url.Action("DeleteClotheListElementByListAndElementId", "ApiClothesList")"
+
+    const quantityByListAndElementIdUrl = "@Url.Action("FindQuantityByListAndElementId", "ApiClothesList")"
+    
+    const updateQuantityByListAndElementIdUrl = "@Url.Action("UpdateClotheListElementQuantity", "ApiClothesList")"
+    
+    async function fetchClotheListElementsApi(clotheListId){
+        return await (await fetch(clotheListElementsUrl+"/"+clotheListId)).json()
+    }
+    
+    async function fetchClothesNotInListApi(clotheListId){
+        return await (await fetch(clothesNotInListUrl+"/"+clotheListId)).json()
+    }
+    
+    async function deleteClotheListElementByListAndElementIdApi(clotheListId, clotheListElementId){
+        return await fetch(deleteClotheListElementByListAndElementIdUrl+"/"+clotheListId+"/"+clotheListElementId,
+            {
+                method: 'DELETE',
+                body: new URLSearchParams({'__RequestVerificationToken': antiForgeryToken()})
+            })
+    }
+    
+    async function addClotheElementToListApi(idClotheList, idClothe, initialQuantity){
+       return await fetch(addClotheElementToList, 
+            {
+                method: 'PATCH',
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": antiForgeryToken()
+                },
+                body: JSON.stringify(
+                    {
+                        "IdClothesList": idClotheList,
+                        "IdClothes": idClothe,
+                        "InitialQuantity": initialQuantity
+                    }
+                )
+            })
+    }
+
+    async function updateQuantityByListAndElementIdApi(previousIdClotheList, previousIdClothe, newQuantity){
+        return await fetch(updateQuantityByListAndElementIdUrl,
+            {
+                method: 'PATCH',
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": antiForgeryToken()
+                },
+                body: JSON.stringify(
+                    {
+                        "PreviousIdClothesList": previousIdClotheList,
+                        "PreviousIdClothes": previousIdClothe,
+                        "NewQuantity": newQuantity
+                    }
+                )
+            })
+    }
+    
+    async function fetchQuantityByListAndElementIdApi(idClotheList, idClothe){
+        return (await (await fetch(quantityByListAndElementIdUrl+"/"+idClotheList+"/"+idClothe)).json())['quantity']
+    }
+</script>

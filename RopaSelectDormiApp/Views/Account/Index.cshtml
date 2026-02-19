@@ -1,0 +1,52 @@
+@{
+    Layout = null;
+    var showMessage = ViewData["ShowMessage"] as bool? ?? false;
+    var message = ViewData["Message"] as string ?? "";
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Please Log In</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body { background-color: #ffffff; }
+        .login-container { background-color: #f8f9fa; border: 1px solid #007bff; border-radius: 8px; padding: 2rem; max-width: 400px; margin: 5rem auto; }
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .register-link { text-align: center; margin-top: 1rem; }
+        .register-link a { color: #28a745; text-decoration: none; font-weight: bold; }
+        .register-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="login-container">
+        <h2 class="text-center text-primary mb-4">Login</h2>
+        <form method="post" asp-controller="Account" asp-action="Login">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Log In</button>
+            @if (showMessage)
+            {
+                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                    @message
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </form>
+        <div class="register-link">
+            <p>Don't have an account? <a href="/Account/Register">Create one here</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
