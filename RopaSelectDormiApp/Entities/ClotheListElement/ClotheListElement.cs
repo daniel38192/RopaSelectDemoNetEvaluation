@@ -6,6 +6,7 @@ namespace RopaSelectDormiApp.Entities.ClotheListElement;
 
 using ClotheList;
 using Clothe;
+using User;
 
 [Table("clothes_list_elements")]
 public class ClotheListElement
@@ -13,6 +14,10 @@ public class ClotheListElement
     [Key]
     [Column("id")]
     public long Id { get; set; }
+
+    [ForeignKey(nameof(User.Id))]
+    [Column("user_id")]
+    public Guid UserId { get; set; }
     
     [ForeignKey(nameof(ClotheList.Id))]
     [Column("id_clothes_list")]
@@ -28,4 +33,6 @@ public class ClotheListElement
     public ClotheList ClotheList { get; set; } = null!;
     
     public Clothe Clothe { get; set; } = null!;
+
+    public User User { get; set; } = null!;
 }

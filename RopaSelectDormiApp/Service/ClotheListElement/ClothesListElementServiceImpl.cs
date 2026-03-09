@@ -8,25 +8,25 @@ namespace RopaSelectDormiApp.Service.ClotheListElement;
 
 public class ClothesListElementServiceImpl(IClothesListElementDao clothesListElementDao): IClothesListElementService
 {
-    public Task<List<ClotheListElementModel>> FindClothesListElementsByClotheListId(long idClotheList)
-        => clothesListElementDao.FindClothesListElementsByClotheListId(idClotheList);
+    public Task<List<ClotheListElementModel>> FindClothesListElementsByClotheListId(long idClotheList, Guid userId)
+        => clothesListElementDao.FindClothesListElementsByClotheListId(idClotheList, userId);
 
     public Task<List<ClotheListElementIdNameQuantityModel>> FindClothesListElementsNameQuantityByClotheListId(
-        long idClotheList)
-        => clothesListElementDao.FindClothesListElementsIdNameQuantityByClotheListId(idClotheList);
+        long idClotheList, Guid userId)
+        => clothesListElementDao.FindClothesListElementsIdNameQuantityByClotheListId(idClotheList, userId);
 
-    public Task AddClotheListElement(CreateClotheListElementDto createClotheListElement)
-        => clothesListElementDao.AddClotheListElement(createClotheListElement);
+    public Task AddClotheListElement(CreateClotheListElementDto createClotheListElement, Guid userId)
+        => clothesListElementDao.AddClotheListElement(createClotheListElement, userId);
 
-    public Task<long> FindQuantityByListAndElementId(long idClotheList, long idClothe)
-        => clothesListElementDao.FindQuantityByListAndElementId(idClotheList, idClothe);
+    public Task<long> FindQuantityByListAndElementId(long idClotheList, long idClothe, Guid userId)
+        => clothesListElementDao.FindQuantityByListAndElementId(idClotheList, idClothe, userId);
 
-    public Task UpdateClotheListElementQuantity(UpdateClotheListElementDto updateClotheListElement)
-        => clothesListElementDao.UpdateClotheListElementQuantity(updateClotheListElement);
+    public Task UpdateClotheListElementQuantity(UpdateClotheListElementDto updateClotheListElement, Guid userId)
+        => clothesListElementDao.UpdateClotheListElementQuantity(updateClotheListElement, userId);
 
-    public Task DeleteClotheListElementByListAndElementId(long idClotheList, long idClothe)
-        => clothesListElementDao.DeleteClotheListElementByListAndElementId(idClotheList, idClothe);
+    public Task DeleteClotheListElementByListAndElementId(long idClotheList, long idClothe, Guid userId)
+        => clothesListElementDao.DeleteClotheListElementByListAndElementId(idClotheList, idClothe, userId);
 
-    public Task<bool> ExistClotheElementInClotheListById(long idClotheList, long idClothe)
-        => clothesListElementDao.ExistClotheElementInClotheListById(idClotheList, idClothe);
+    public Task<bool> ExistClotheElementInClotheListById(long idClotheList, long idClothe, Guid userId)
+        => clothesListElementDao.ExistClotheElementInClotheListById(idClotheList, idClothe, userId);
 }

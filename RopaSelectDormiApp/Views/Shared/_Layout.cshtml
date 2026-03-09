@@ -32,10 +32,18 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="ClothesList" asp-action="Index">Lista de Ropas</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Usuarios</a>
-                    </li>
+                    @if (User.IsInRole("ADMIN")) {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Index">Usuarios</a>
+                        </li>
+                    }
                 </ul>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form id="logoutForm" asp-action="Logout" class="d-inline">
+                        <a href="#" class="nav-link text-dark" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+                    </form>
+                }
             </div>
         </div>
     </nav>

@@ -17,3 +17,5 @@ CREATE TABLE IF NOT EXISTS clothes_list_elements
     quantity        int    NOT NULL DEFAULT 0,
     CONSTRAINT unique_clothes_list_element UNIQUE (id_clothes_list, id_clothes)
 )
+
+insert into user_roles values ((select "Id" from users where "UserName" = 'Administrator'), (select "Id" from roles where "Name" = 'ADMIN'))

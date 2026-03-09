@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RopaSelectDormiApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6abf4198807806eed3c7ed756ce2c73bee4901f4")]
 [assembly: System.Reflection.AssemblyProductAttribute("RopaSelectDormiApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RopaSelectDormiApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

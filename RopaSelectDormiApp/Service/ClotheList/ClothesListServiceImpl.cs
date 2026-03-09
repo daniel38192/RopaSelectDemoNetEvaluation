@@ -7,18 +7,19 @@ namespace RopaSelectDormiApp.Service.ClotheList;
 
 public class ClothesListServiceImpl(IClothesListDao clothesListDao): IClothesListService
 {
-    public Task AddClotheList(CreateClotheListDto createClothe) => clothesListDao.AddClotheList(createClothe);
+    public Task AddClotheList(CreateClotheListDto createClothe, Guid userId) =>
+        clothesListDao.AddClotheList(createClothe, userId);
 
-    public Task<List<ClotheListModel>> FindAllClothesList() => clothesListDao.FindAllClothesList();
+    public Task<List<ClotheListModel>> FindAllClothesList(Guid userId) => clothesListDao.FindAllClothesList(userId);
 
-    public Task<List<ClotheListModel>> FindAllClothesListOrderedLimitOffset(long limit, long offset) =>
-        clothesListDao.FindAllClothesListOrderedLimitOffset(limit, offset);
+    public Task<List<ClotheListModel>> FindAllClothesListOrderedLimitOffset(long limit, long offset, Guid userId) =>
+        clothesListDao.FindAllClothesListOrderedLimitOffset(limit, offset, userId);
 
-    public Task<long> CountTotalAvailableLists()
-        => clothesListDao.CountTotalAvailableLists();
+    public Task<long> CountTotalAvailableLists(Guid userId)
+        => clothesListDao.CountTotalAvailableLists(userId);
 
-    public Task<List<ClotheModel>> FindClothesThatNotAreInListYet(long idClotheList)
-        => clothesListDao.FindClothesThatNotAreInListYet(idClotheList);
+    public Task<List<ClotheModel>> FindClothesThatNotAreInListYet(long idClotheList, Guid userId)
+        => clothesListDao.FindClothesThatNotAreInListYet(idClotheList, userId);
 
-    public Task DeleteClotheListById(long id) => clothesListDao.DeleteClotheListById(id);
+    public Task DeleteClotheListById(long id, Guid userId) => clothesListDao.DeleteClotheListById(id, userId);
 }

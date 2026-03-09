@@ -8,10 +8,10 @@ namespace RopaSelectDormiApp.Dao.ClotheList;
 
 public interface IClothesListDao
 {
-    Task AddClotheList(CreateClotheListDto createClothe);
-    Task<List<ClotheListModel>> FindAllClothesList();
-    Task<List<ClotheListModel>> FindAllClothesListOrderedLimitOffset(long limit, long offset);
-    Task<long> CountTotalAvailableLists();
-    Task<List<ClotheModel>> FindClothesThatNotAreInListYet(long clotheListId);
-    Task DeleteClotheListById(long id);
+    Task AddClotheList(CreateClotheListDto createClothe, Guid userId);
+    Task<List<ClotheListModel>> FindAllClothesList(Guid userId);
+    Task<List<ClotheListModel>> FindAllClothesListOrderedLimitOffset(long limit, long offset, Guid userId);
+    Task<long> CountTotalAvailableLists(Guid userId);
+    Task<List<ClotheModel>> FindClothesThatNotAreInListYet(long clotheListId, Guid userId);
+    Task DeleteClotheListById(long id, Guid userId);
 }
